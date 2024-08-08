@@ -7,10 +7,10 @@ import streamlit as st
 import numpy as np
 
 # 서버 주소 설정
-WEBSOCKET_HOST = '0.0.0.0'
+WEBSOCKET_HOST = '192.168.0.12'
 WEBSOCKET_PORT = 8502
-STREAMLIT_HOST = '0.0.0.0'
-STREAMLIT_PORT = 8502
+# STREAMLIT_HOST = '192.168.0.12'
+# STREAMLIT_PORT = 8502
 
 def overlay_text_on_frame(frame, texts):
     overlay = frame.copy()
@@ -47,7 +47,8 @@ async def send_video():
 
                 # Analyze the frame using DeepFace
                 try:
-                    result = DeepFace.analyze(img_path=frame, actions=['age', 'gender', 'race', 'emotion'],
+                    # result = DeepFace.analyze(img_path=frame, actions=['age', 'gender', 'race', 'emotion'],
+                    result = DeepFace.analyze(img_path=frame, actions=['emotion'],
                                               enforce_detection=False,
                                               detector_backend="opencv",
                                               align=True,
@@ -61,11 +62,17 @@ async def send_video():
                     emotion_text = f"{result['dominant_emotion']}"
                     cv2.putText(frame, emotion_text, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1, cv2.LINE_AA)
 
+                    # texts = [
+                    #     f"Age: {result['age']}",
+                    #     f"Gender: {result['dominant_gender']}",
+                    #     f"Race: {result['dominant_race']}",
+                    #     f"Emotion: {result['dominant_emotion']}",
+                    # ]
                     texts = [
-                        f"Age: {result['age']}",
-                        f"Gender: {result['dominant_gender']}",
-                        f"Race: {result['dominant_race']}",
-                        f"Emotion: {result['dominant_emotion']}",
+                        # f"Age: {result['age']}",
+                        # f"Gender: {result['dominant_gender']}",
+                        # f"Race: {result['dominant_race']}",
+                        f"Dominant Emotion: {result['dominant_emotion']} {round(result['emotion'][result['dominant_emotion']], 1)}",
                     ]
                     frame = overlay_text_on_frame(frame, texts)
                 except Exception as e:
