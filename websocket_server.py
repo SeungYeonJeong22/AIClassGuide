@@ -26,17 +26,17 @@ async def receive_video(websocket, path):
                 break
 
             # Resize frames
-            student_frame_resized = cv2.resize(student_frame, (480, 360))  # 학생 프레임을 더 크게 조정
-            teacher_frame_resized = cv2.resize(teacher_frame, (640, 360))  # 교사 프레임 크기 수정
+            student_frame_resized = cv2.resize(student_frame, (960, 540))  # 학생 프레임을 더 크게 조정
+            teacher_frame_resized = cv2.resize(teacher_frame, (1280, 720))  # 교사 프레임 크기 수정
 
             # Create a blank canvas to combine the frames
-            combined_frame = np.zeros((720, 640, 3), dtype=np.uint8)
+            combined_frame = np.zeros((1260, 1280, 3), dtype=np.uint8)  # 세로 길이를 줄임
 
             # Place teacher frame
-            combined_frame[360:720, 0:640] = teacher_frame_resized
+            combined_frame[540:1260, 0:1280] = teacher_frame_resized
 
             # Place student frame
-            combined_frame[0:360, 80:560] = student_frame_resized  # 위치 조정
+            combined_frame[0:540, 160:1120] = student_frame_resized  # 위치 조정
 
             cv2.imshow("Combined Frame", combined_frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):

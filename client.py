@@ -7,10 +7,8 @@ import streamlit as st
 import numpy as np
 
 # 서버 주소 설정
-WEBSOCKET_HOST = '192.168.0.12'
-WEBSOCKET_PORT = 8502
-# STREAMLIT_HOST = '192.168.0.12'
-# STREAMLIT_PORT = 8502
+WEBSOCKET_HOST = '192.168.0.12'  # 공인 IP 주소를 입력하세요
+WEBSOCKET_PORT = 9998  # WebSocket 포트
 
 def overlay_text_on_frame(frame, texts):
     overlay = frame.copy()
@@ -18,10 +16,10 @@ def overlay_text_on_frame(frame, texts):
     cv2.rectangle(overlay, (0, 0), (frame.shape[1], 100), (255, 255, 255), -1)  # White rectangle
     cv2.addWeighted(overlay, alpha, frame, 1 - alpha, 0, frame)
 
-    text_position = 15  # Where the first text is put into the overlay
+    text_position = 50  # Where the first text is put into the overlay
     for text in texts:
-        cv2.putText(frame, text, (10, text_position), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv2.LINE_AA)
-        text_position += 20
+        cv2.putText(frame, text, (10, text_position), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 2, cv2.LINE_AA)
+        text_position += 50
 
     return frame
 
@@ -43,11 +41,10 @@ async def send_video():
                     break
 
                 # Resize frame to reduce size
-                frame = cv2.resize(frame, (320, 240))
+                frame = cv2.resize(frame, (960, 540))
 
                 # Analyze the frame using DeepFace
                 try:
-                    # result = DeepFace.analyze(img_path=frame, actions=['age', 'gender', 'race', 'emotion'],
                     result = DeepFace.analyze(img_path=frame, actions=['emotion'],
                                               enforce_detection=False,
                                               detector_backend="opencv",
@@ -60,18 +57,9 @@ async def send_video():
                     x, y, w, h = face_coordinates['x'], face_coordinates['y'], face_coordinates['w'], face_coordinates['h']
                     cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
                     emotion_text = f"{result['dominant_emotion']}"
-                    cv2.putText(frame, emotion_text, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1, cv2.LINE_AA)
+                    cv2.putText(frame, emotion_text, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 0), 2, cv2.LINE_AA)
 
-                    # texts = [
-                    #     f"Age: {result['age']}",
-                    #     f"Gender: {result['dominant_gender']}",
-                    #     f"Race: {result['dominant_race']}",
-                    #     f"Emotion: {result['dominant_emotion']}",
-                    # ]
                     texts = [
-                        # f"Age: {result['age']}",
-                        # f"Gender: {result['dominant_gender']}",
-                        # f"Race: {result['dominant_race']}",
                         f"Dominant Emotion: {result['dominant_emotion']} {round(result['emotion'][result['dominant_emotion']], 1)}",
                     ]
                     frame = overlay_text_on_frame(frame, texts)
@@ -79,10 +67,10 @@ async def send_video():
                     st.error(f"Error in analyzing frame: {e}")
 
                 # Create a blank canvas to combine the frames
-                combined_frame = np.zeros((720, 640, 3), dtype=np.uint8)
+                combined_frame = np.zeros((1260, 1280, 3), dtype=np.uint8)  # 세로 길이를 줄임
 
                 # Place student frame
-                combined_frame[0:240, 160:480] = frame
+                combined_frame[0:540, 160:1120] = frame
 
                 # Encode frame as JPEG to reduce size
                 _, buffer = cv2.imencode('.jpg', combined_frame)
@@ -108,6 +96,7 @@ async def send_video():
                 await asyncio.sleep(0.1)
 
             cap.release()
+   
     except Exception as e:
         st.error(f"Connection error: {e}")
 
