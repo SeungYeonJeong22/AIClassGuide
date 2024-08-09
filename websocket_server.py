@@ -5,7 +5,10 @@ import pickle
 import numpy as np
 
 # 서버 설정
-WEBSOCKET_HOST = '0.0.0.0'
+# WEBSOCKET_HOST = '0.0.0.0'
+# WEBSOCKET_HOST = '165.194.34.98'
+WEBSOCKET_HOST = '127.0.0.1'
+# WEBSOCKET_HOST = '219.255.207.60'
 WEBSOCKET_PORT = 9999
 
 async def receive_video(websocket, path):
