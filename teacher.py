@@ -7,11 +7,8 @@ import pickle
 import numpy as np
 
 # 서버 설정
-# STREAMLIT_HOST = '0.0.0.0'
-STREAMLIT_HOST = '127.0.0.1'
-# STREAMLIT_HOST = '219.255.207.60'
-STREAMLIT_PORT = 8502  # 스트림릿 서버 포트
-WEBSOCKET_PORT = 9998  # WebSocket 포트
+WEBSOCKET_HOST = '127.0.0.1'
+WEBSOCKET_PORT = 9998
 
 st.title("Teacher's Live Stream")  # 페이지의 최상단에 고정
 status_text = st.empty()
@@ -19,7 +16,7 @@ stframe = st.empty()
 
 async def handle_client(websocket, path):
     global stframe, status_text
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(0)  # Teacher의 웹캠을 캡처하기 위해 추가
     stframe.empty()  # Clear the Streamlit frame
     status_text.empty()  # Clear the status text
 
@@ -33,6 +30,7 @@ async def handle_client(websocket, path):
             nparr = np.frombuffer(frame_data, np.uint8)
             student_frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
+            # Teacher의 웹캠 프레임을 가져옴
             ret, teacher_frame = cap.read()
             if not ret:
                 break
@@ -44,11 +42,11 @@ async def handle_client(websocket, path):
             # Create a blank canvas to combine the frames
             combined_frame = np.zeros((1260, 1280, 3), dtype=np.uint8)  # 세로 길이를 줄임
 
-            # Place teacher frame
-            combined_frame[540:1260, 0:1280] = teacher_frame_resized
-
             # Place student frame
             combined_frame[0:540, 160:1120] = student_frame_resized  # 위치 조정
+
+            # Place teacher frame
+            combined_frame[540:1260, 0:1280] = teacher_frame_resized
 
             # Convert OpenCV image to PIL image
             combined_frame_rgb = cv2.cvtColor(combined_frame, cv2.COLOR_BGR2RGB)
@@ -63,9 +61,10 @@ async def handle_client(websocket, path):
         print(f"Connection closed: {e}")
     finally:
         cap.release()
+        cv2.destroyAllWindows()
 
 async def start_server():
-    async with websockets.serve(handle_client, STREAMLIT_HOST, WEBSOCKET_PORT):
+    async with websockets.serve(handle_client, WEBSOCKET_HOST, WEBSOCKET_PORT):
         await asyncio.Future()  # run forever
 
 def main():
