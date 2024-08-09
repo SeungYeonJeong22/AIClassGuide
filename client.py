@@ -7,10 +7,10 @@ import streamlit as st
 import numpy as np
 
 # 서버 주소 설정
-WEBSOCKET_HOST = '192.168.0.12'  # 공인 IP 주소를 입력하세요
+WEBSOCKET_HOST = '219.255.207.60'  # 공인 IP 주소를 입력하세요
 WEBSOCKET_PORT = 9998  # WebSocket 포트
 
-def overlay_text_on_frame(frame, texts):
+def overlay_text_on_frame(frame, texts, border_color=(0, 255, 0)):
     overlay = frame.copy()
     alpha = 0.6  # Adjust the transparency of the overlay
     cv2.rectangle(overlay, (0, 0), (frame.shape[1], 100), (255, 255, 255), -1)  # White rectangle
@@ -20,6 +20,9 @@ def overlay_text_on_frame(frame, texts):
     for text in texts:
         cv2.putText(frame, text, (10, text_position), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 2, cv2.LINE_AA)
         text_position += 50
+
+    # Draw a border around the frame
+    cv2.rectangle(frame, (0, 0), (frame.shape[1], frame.shape[0]), border_color, 10)
 
     return frame
 
@@ -43,6 +46,8 @@ async def send_video():
                 # Resize frame to reduce size
                 frame = cv2.resize(frame, (960, 540))
 
+                border_color = (0, 255, 0)  # Default to green
+
                 # Analyze the frame using DeepFace
                 try:
                     result = DeepFace.analyze(img_path=frame, actions=['emotion'],
@@ -52,17 +57,25 @@ async def send_video():
                                               silent=False)
                     result = result[0]
 
-                    # Draw bounding box and emotion text
-                    face_coordinates = result["region"]
-                    x, y, w, h = face_coordinates['x'], face_coordinates['y'], face_coordinates['w'], face_coordinates['h']
-                    cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                    # Emotion analysis text
                     emotion_text = f"{result['dominant_emotion']}"
-                    cv2.putText(frame, emotion_text, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 0), 2, cv2.LINE_AA)
 
                     texts = [
                         f"Dominant Emotion: {result['dominant_emotion']} {round(result['emotion'][result['dominant_emotion']], 1)}",
                     ]
-                    frame = overlay_text_on_frame(frame, texts)
+
+                    # Check if neutral is below 50 or if a negative emotion is detected
+                    neutral_value = result['emotion'].get('neutral', 100)
+                    dominant_emotion = result['dominant_emotion']
+                    negative_emotions = ['sad', 'angry', 'fear', 'disgust']
+
+                    # 수정된 논리 조건
+                    if neutral_value < 50 or dominant_emotion in negative_emotions:
+                        border_color = (0, 0, 255)  # Set border color to red
+                    else:
+                        border_color = (0, 255, 0)  # Set border color to green
+
+                    frame = overlay_text_on_frame(frame, texts, border_color=border_color)
                 except Exception as e:
                     st.error(f"Error in analyzing frame: {e}")
 
@@ -96,7 +109,7 @@ async def send_video():
                 await asyncio.sleep(0.1)
 
             cap.release()
-   
+
     except Exception as e:
         st.error(f"Connection error: {e}")
 
