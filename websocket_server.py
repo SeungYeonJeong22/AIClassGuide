@@ -3,7 +3,7 @@ import websockets
 import pickle
 
 # 서버 설정
-WEBSOCKET_HOST = '127.0.0.1'
+WEBSOCKET_HOST = '192.168.0.187'
 WEBSOCKET_PORT = 9999
 
 connected_clients = set()

@@ -7,7 +7,7 @@ import pickle
 import numpy as np
 
 # 서버 설정
-WEBSOCKET_HOST = '127.0.0.1'
+WEBSOCKET_HOST = '192.168.0.187'
 WEBSOCKET_PORT = 9998
 
 st.title("Teacher's Live Stream")  # 페이지의 최상단에 고정
