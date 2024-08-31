@@ -1,10 +1,14 @@
 import asyncio
 import websockets
 import pickle
+from dotenv import main as dotmain
+import os
+
+dotmain.load_dotenv('environments.env')
 
 # 서버 설정
-WEBSOCKET_HOST = '192.168.0.187'
-WEBSOCKET_PORT = 9999
+WEBSOCKET_HOST = os.getenv('WEBSOCKET_HOST')
+WEBSOCKET_PORT = int(os.getenv('WEBSOCKET_SERVER_PORT'))
 
 connected_clients = set()
 

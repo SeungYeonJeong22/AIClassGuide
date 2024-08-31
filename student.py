@@ -8,10 +8,14 @@ from deepface import DeepFace
 import numpy as np
 import matplotlib.pyplot as plt
 import io
+from dotenv import main as dotmain
+import os
 
-# 서버 주소 설정
-WEBSOCKET_HOST = '127.0.0.1'
-WEBSOCKET_PORT = 9998
+dotmain.load_dotenv('environments.env')
+
+# 서버 설정
+WEBSOCKET_HOST = os.getenv('STUDENT_WEBSOCKET_HOST')
+WEBSOCKET_PORT = int(os.getenv('WEBSOCKET_PORT'))
 
 # 시간에 따른 감정 기록을 저장할 리스트
 emotion_history = []

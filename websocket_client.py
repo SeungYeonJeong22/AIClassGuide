@@ -6,10 +6,15 @@ from emotion_analysis import analyze_emotion
 from plotting import plot_emotion_history
 import streamlit as st
 import numpy as np
+from dotenv import main as dotmain
+import os
 
-# 서버 주소 설정
-WEBSOCKET_HOST = '192.168.0.187'
-WEBSOCKET_PORT = 9998
+dotmain.load_dotenv('environments.env')
+
+# 서버 설정
+WEBSOCKET_HOST = os.getenv('WEBSOCKET_HOST')
+WEBSOCKET_PORT = int(os.getenv('WEBSOCKET_PORT'))
+
 
 # 시간에 따른 감정 기록을 저장할 리스트
 emotion_history = []

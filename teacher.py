@@ -5,10 +5,14 @@ import streamlit as st
 from PIL import Image
 import pickle
 import numpy as np
+from dotenv import main as dotmain
+import os
+
+dotmain.load_dotenv('environments.env')
 
 # 서버 설정
-WEBSOCKET_HOST = '192.168.0.187'
-WEBSOCKET_PORT = 9998
+WEBSOCKET_HOST = os.getenv('WEBSOCKET_HOST')
+WEBSOCKET_PORT = int(os.getenv('WEBSOCKET_PORT'))
 
 st.title("Teacher's Live Stream")  # 페이지의 최상단에 고정
 status_text = st.empty()
