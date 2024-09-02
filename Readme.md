@@ -6,6 +6,6 @@ This Project use deepfacial live emotion recognition projects
 
 Run this command
 
-- `python websokcet_server.py` 
+- `python websocket_server.py` 
 - `streamlit run teacher.py`
 - `streamlit run student.py`
